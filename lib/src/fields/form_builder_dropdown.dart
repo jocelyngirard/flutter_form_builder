@@ -75,12 +75,12 @@ class _FormBuilderDropdownState extends State<FormBuilderDropdown> {
           if (widget.validators[i](val) != null)
             return widget.validators[i](val);
         }
+        return null;
       },
       onSaved: (val) {
         if (widget.valueTransformer != null) {
           var transformed = widget.valueTransformer(val);
-          FormBuilder.of(context)
-              ?.setAttributeValue(widget.attribute, transformed);
+          _formState?.setAttributeValue(widget.attribute, transformed);
         } else
           _formState?.setAttributeValue(widget.attribute, val);
       },
@@ -97,7 +97,9 @@ class _FormBuilderDropdownState extends State<FormBuilderDropdown> {
             value: field.value,
             style: widget.style,
             isDense: widget.isDense,
-            disabledHint: widget.disabledHint,
+            disabledHint: field.value != null
+                ? Text("${field.value.toString()}")
+                : widget.disabledHint,
             elevation: widget.elevation,
             iconSize: widget.iconSize,
             underline: widget.underline,
@@ -109,6 +111,9 @@ class _FormBuilderDropdownState extends State<FormBuilderDropdown> {
                     if (widget.onChanged != null) widget.onChanged(value);
                   },
             //TODO: add icon, enabledColor, disabledColor
+            /*icon: widget.icon,
+            iconEnabledColor: widget.iconEnabledColor,
+            iconDisabledColor: widget.iconDisabledColor,*/
           ),
         );
       },

@@ -1,3 +1,18 @@
+## [3.2.8] - 12-Jul-2019
+Added `activeColor`, `checkColor`, `materialTapTargetSize` & `tristate` options to `FormBuilderCheckbox` and `FormBuilderCheckboxList` fo checkbox customization
+
+## [3.2.7] - 06-Jul-2019
+* Fixed bug where `valueTransformer`s not working
+
+## [3.2.6] - 06-Jul-2019
+* If disabled dropdown has value, show value instead of `disabledHint`
+
+## [3.2.5] - 05-Jul-2019
+* Fixed Stack Overflow bug in `setAttributeValue` function
+
+## [3.2.4] - 03-Jul-2019
+* Fixed issue in saving form attribute values - Credit [Caciano Kroth](https://github.com/cacianokroth) & [eltonmorais](https://github.com/eltonmorais)
+
 ## [3.2.3] - 25-Jun-2019
 * Allow `readonly` attribute for fields to be changed at runtime. Credit [Daniel Acorsi](https://github.com/dhaalves). Closes [#75](https://github.com/danvick/flutter_form_builder/issues/75)
 
