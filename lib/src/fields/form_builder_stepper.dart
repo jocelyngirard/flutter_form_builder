@@ -7,7 +7,7 @@ class FormBuilderStepper extends StatefulWidget {
   final String attribute;
   final List<FormFieldValidator> validators;
   final num initialValue;
-  final bool readonly;
+  final bool readOnly;
   final InputDecoration decoration;
   final ValueChanged onChanged;
   final ValueTransformer valueTransformer;
@@ -16,12 +16,13 @@ class FormBuilderStepper extends StatefulWidget {
   final num min;
   final num max;
   final num size;
+  final FormFieldSetter onSaved;
 
   FormBuilderStepper({
     @required this.attribute,
     this.initialValue,
     this.validators = const [],
-    this.readonly = false,
+    this.readOnly = false,
     this.decoration = const InputDecoration(),
     this.step,
     this.min,
@@ -29,6 +30,7 @@ class FormBuilderStepper extends StatefulWidget {
     this.size = 24.0,
     this.onChanged,
     this.valueTransformer,
+    this.onSaved,
   });
 
   @override
@@ -36,14 +38,19 @@ class FormBuilderStepper extends StatefulWidget {
 }
 
 class _FormBuilderStepperState extends State<FormBuilderStepper> {
-  bool _readonly = false;
+  bool _readOnly = false;
   final GlobalKey<FormFieldState> _fieldKey = GlobalKey<FormFieldState>();
   FormBuilderState _formState;
+  num _initialValue;
 
   @override
   void initState() {
     _formState = FormBuilder.of(context);
     _formState?.registerFieldKey(widget.attribute, _fieldKey);
+    _initialValue = widget.initialValue ??
+        (_formState.initialValue.containsKey(widget.attribute)
+            ? _formState.initialValue[widget.attribute]
+            : null);
     super.initState();
   }
 
@@ -55,12 +62,12 @@ class _FormBuilderStepperState extends State<FormBuilderStepper> {
 
   @override
   Widget build(BuildContext context) {
-    _readonly = (_formState?.readonly == true) ? true : widget.readonly;
+    _readOnly = (_formState?.readOnly == true) ? true : widget.readOnly;
 
     return FormField(
-      enabled: !_readonly,
+      enabled: !_readOnly,
       key: _fieldKey,
-      initialValue: widget.initialValue,
+      initialValue: _initialValue,
       validator: (val) {
         for (int i = 0; i < widget.validators.length; i++) {
           if (widget.validators[i](val) != null)
@@ -69,31 +76,35 @@ class _FormBuilderStepperState extends State<FormBuilderStepper> {
         return null;
       },
       onSaved: (val) {
+        var transformed;
         if (widget.valueTransformer != null) {
-          var transformed = widget.valueTransformer(val);
+          transformed = widget.valueTransformer(val);
           _formState?.setAttributeValue(widget.attribute, transformed);
         } else
           _formState?.setAttributeValue(widget.attribute, val);
+        if (widget.onSaved != null) {
+          widget.onSaved(transformed ?? val);
+        }
       },
       builder: (FormFieldState<dynamic> field) {
         return InputDecorator(
           decoration: widget.decoration.copyWith(
-            enabled: !_readonly,
+            enabled: !_readOnly,
             errorText: field.errorText,
           ),
           child: SyStepper(
-            value: field.value ?? 0,
-            step: widget.step ?? 1,
-            min: widget.min ?? 0,
-            max: widget.max ?? 9999999,
-            size: widget.size,
-            onChange: _readonly
+            onChange: _readOnly
                 ? null
                 : (value) {
                     FocusScope.of(context).requestFocus(FocusNode());
                     field.didChange(value);
                     if (widget.onChanged != null) widget.onChanged(value);
                   },
+            value: field.value ?? 0,
+            step: widget.step ?? 1,
+            min: widget.min ?? 0,
+            max: widget.max ?? 9999999,
+            size: widget.size,
           ),
         );
       },
